@@ -1,4 +1,9 @@
 const fs = require("fs");
+const http = require("http");
+const url = require("url");
+
+////////////////////////////////////////////////
+// files
 
 // sync blocking code
 // const txtInput = fs.readFileSync("./txt/input.txt", "utf-8");
@@ -15,21 +20,41 @@ const fs = require("fs");
 // });
 // console.log("reding file async");
 
-fs.readFile("./txt/starfdaasdft.txt", "utf-8", (err, data1) => {
-  if (err) return console.log("ERROR🐱‍👓");
-  fs.readFile(`./txt/${data1}.txt`, "utf-8", (err, data2) => {
-    console.log(data2);
-    fs.readFile("./txt/append.txt", "utf-8", (err, data3) => {
-      console.log(data3);
-      fs.writeFile(
-        "./txt/summaryFile.txt",
-        `${data2}\n${data3}`,
-        "utf-8",
-        (err) => {
-          console.log("Your file has been written 🐱‍👓");
-        }
-      );
-    });
-  });
+// fs.readFile("./txt/starfdaasdft.txt", "utf-8", (err, data1) => {
+//   if (err) return console.log("ERROR🐱‍👓");
+//   fs.readFile(`./txt/${data1}.txt`, "utf-8", (err, data2) => {
+//     console.log(data2);
+//     fs.readFile("./txt/append.txt", "utf-8", (err, data3) => {
+//       console.log(data3);
+//       fs.writeFile(
+//         "./txt/summaryFile.txt",
+//         `${data2}\n${data3}`,
+//         "utf-8",
+//         (err) => {
+//           console.log("Your file has been written 🐱‍👓");
+//         }
+//       );
+//     });
+//   });
+// });
+// console.log("will read file");
+
+////////////////////////////////////////////////
+// server
+const server = http.createServer((request, response) => {
+  console.log(request.url);
+  const pathName = request.url;
+
+  if (pathName === "/" || pathName === "/overview") {
+    response.end("this is an overview");
+  } else if (pathName === "/product") {
+    response.end("this is the product");
+  } else {
+    response.writeHead(404, { "Content-type": "text/html" });
+    response.end("Page not found");
+  }
 });
-console.log("will read file");
+
+server.listen(8000, "127.0.0.1", () => {
+  console.log("Listening to requests on port 8000");
+});
