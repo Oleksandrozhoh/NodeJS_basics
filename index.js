@@ -3,6 +3,7 @@ const http = require("http");
 const url = require("url");
 
 const replaceTemplate = require("./modules/replaceTemplate");
+const slugify = require("./node_modules/slugify");
 ////////////////////////////////////////////////
 // files
 
@@ -64,6 +65,8 @@ const server = http.createServer((request, response) => {
   const { query, pathname } = url.parse(request.url, true);
   console.log(query);
   console.log(pathname);
+  const slugs = dataObj.map((obj) => slugify(obj.productName, { lower: true }));
+  console.log(slugs);
 
   // OVERVIEW PAGE
   if (pathname === "/" || pathname === "/overview") {
