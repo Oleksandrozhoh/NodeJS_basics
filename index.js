@@ -1,9 +1,9 @@
-const fs = require("fs");
-const http = require("http");
-const url = require("url");
+const fs = require('fs');
+const http = require('http');
+const url = require('url');
 
-const replaceTemplate = require("./modules/replaceTemplate");
-const slugify = require("./node_modules/slugify");
+const replaceTemplate = require('./modules/replaceTemplate');
+const slugify = require('./node_modules/slugify');
 ////////////////////////////////////////////////
 // files
 
@@ -42,57 +42,45 @@ const slugify = require("./node_modules/slugify");
 // console.log("will read file");
 
 ////////////////////////////////////////////////
-
-// server
 // read all HTML templates
-const tempOverview = fs.readFileSync(
-  `${__dirname}/templates/template-overview.html`,
-  "utf-8"
-);
-const tempCard = fs.readFileSync(
-  `${__dirname}/templates/template-card.html`,
-  "utf-8"
-);
-const tempProduct = fs.readFileSync(
-  `${__dirname}/templates/product.html`,
-  "utf-8"
-);
-const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
+const tempOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
+const tempCard = fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8');
+const tempProduct = fs.readFileSync(`${__dirname}/templates/product.html`, 'utf-8');
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
 
 // creating server
 const server = http.createServer((request, response) => {
+  // extracting search path and query params from url object
   const { query, pathname } = url.parse(request.url, true);
-  console.log(query);
-  console.log(pathname);
   const slugs = dataObj.map((obj) => slugify(obj.productName, { lower: true }));
-  console.log(slugs);
+  // console.log(slugs);
 
+  // dynamically opening page based on query and path values
   // OVERVIEW PAGE
-  if (pathname === "/" || pathname === "/overview") {
-    response.writeHead(200, { "Content-type": "text/html" });
-    const cardsHTML = dataObj
-      .map((element) => replaceTemplate(tempCard, element))
-      .join("");
+  if (pathname === '/' || pathname === '/overview') {
+    response.writeHead(200, { 'Content-type': 'text/html' });
+    const cardsHTML = dataObj.map((element) => replaceTemplate(tempCard, element)).join('');
     const overviewHTML = tempOverview.replace(/{%PRODUCT_CARDS%}/g, cardsHTML);
     response.end(overviewHTML);
     // PRODUCT PAGE
-  } else if (pathname === "/product") {
-    response.writeHead(200, { "Content-type": "text/html" });
+  } else if (pathname === '/product') {
+    response.writeHead(200, { 'Content-type': 'text/html' });
     const productData = dataObj[query.id];
     const productHTML = replaceTemplate(tempProduct, productData);
     response.end(productHTML);
-
     // API
-  } else if (pathname === "/api") {
-    response.writeHead(200, { "Content-type": "application/json" });
+  } else if (pathname === '/api') {
+    response.writeHead(200, { 'Content-type': 'application/json' });
     response.end(data);
+    // display 404 error if the page is not defined
   } else {
-    response.writeHead(404, { "Content-type": "text/html" });
-    response.end("Page not found");
+    response.writeHead(404, { 'Content-type': 'text/html' });
+    response.end('Page not found');
   }
 });
 
-server.listen(8000, "127.0.0.1", () => {
-  console.log("Listening to requests on port 8000");
+// listen to the user searches on the server
+server.listen(8000, '127.0.0.1', () => {
+  console.log('Listening to requests on port 8000');
 });
