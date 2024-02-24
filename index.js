@@ -74,22 +74,27 @@ const dataObj = JSON.parse(data);
 
 // creating server
 const server = http.createServer((request, response) => {
-  console.log(request.url);
-  const pathName = request.url;
+  const { query, pathname } = url.parse(request.url, true);
+  console.log(query);
+  console.log(pathname);
 
-  if (pathName === "/" || pathName === "/overview") {
-    // OVERVIEW PAGE
+  // OVERVIEW PAGE
+  if (pathname === "/" || pathname === "/overview") {
     response.writeHead(200, { "Content-type": "text/html" });
     const cardsHTML = dataObj
       .map((element) => replateTemplate(tempCard, element))
       .join("");
     const overviewHTML = tempOverview.replace(/{%PRODUCT_CARDS%}/g, cardsHTML);
     response.end(overviewHTML);
-  } else if (pathName === "/product") {
     // PRODUCT PAGE
-    response.end("this is the product");
-  } else if (pathName === "/api") {
+  } else if (pathname === "/product") {
+    response.writeHead(200, { "Content-type": "text/html" });
+    const productData = dataObj[query.id];
+    const productHTML = replateTemplate(tempProduct, productData);
+    response.end(productHTML);
+
     // API
+  } else if (pathname === "/api") {
     response.writeHead(200, { "Content-type": "application/json" });
     response.end(data);
   } else {
