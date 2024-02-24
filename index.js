@@ -2,6 +2,7 @@ const fs = require("fs");
 const http = require("http");
 const url = require("url");
 
+const replaceTemplate = require("./modules/replaceTemplate");
 ////////////////////////////////////////////////
 // files
 
@@ -40,21 +41,7 @@ const url = require("url");
 // console.log("will read file");
 
 ////////////////////////////////////////////////
-// functions
-const replateTemplate = function (template, product) {
-  let output = template.replace(/{%PRODUCTNAME%}/g, product.productName);
-  output = output.replace(/{%IMAGE%}/g, product.image);
-  output = output.replace(/{%QUANTITY%}/g, product.quantity);
-  output = output.replace(/{%PRICE%}/g, product.price);
-  output = output.replace(/{%FROM%}/g, product.from);
-  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
-  output = output.replace(/{%ID%}/g, product.id);
-  output = output.replace(/{%DESCRIPTION%}/g, product.description);
-  output = product.organic
-    ? output.replace(/{%NOT_ORGANIC%}/g, "")
-    : output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
-  return output;
-};
+
 // server
 // read all HTML templates
 const tempOverview = fs.readFileSync(
@@ -82,7 +69,7 @@ const server = http.createServer((request, response) => {
   if (pathname === "/" || pathname === "/overview") {
     response.writeHead(200, { "Content-type": "text/html" });
     const cardsHTML = dataObj
-      .map((element) => replateTemplate(tempCard, element))
+      .map((element) => replaceTemplate(tempCard, element))
       .join("");
     const overviewHTML = tempOverview.replace(/{%PRODUCT_CARDS%}/g, cardsHTML);
     response.end(overviewHTML);
@@ -90,7 +77,7 @@ const server = http.createServer((request, response) => {
   } else if (pathname === "/product") {
     response.writeHead(200, { "Content-type": "text/html" });
     const productData = dataObj[query.id];
-    const productHTML = replateTemplate(tempProduct, productData);
+    const productHTML = replaceTemplate(tempProduct, productData);
     response.end(productHTML);
 
     // API
